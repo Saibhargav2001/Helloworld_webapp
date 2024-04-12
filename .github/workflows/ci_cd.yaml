@@ -1,0 +1,49 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Install Python dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Run tests
+      - name: Run tests
+        run: pytest
+
+      # Perform code quality check (example using flake8)
+      - name: Code quality check
+        run: |
+          pip install flake8
+          flake8 .
+
+      # Generate report (example using pytest-cov for coverage report)
+      - name: Generate coverage report
+        run: pytest --cov-report=xml --cov=.
+
+      # Publish report
+      - name: Publish report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage.xml
